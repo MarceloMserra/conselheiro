@@ -9,6 +9,7 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // Modelo Flash (Rápido e Eficiente)
+// Obs: o Gemini exige que o primeiro item do histórico tenha role "user".
 const MODEL_NAME = "gemini-2.5-flash";
 
 export const sendMessageToGemini = async (
@@ -24,10 +25,11 @@ export const sendMessageToGemini = async (
   }
 
   try {
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: MODEL_NAME,
+      // Em versões do SDK, o role "system" pode ser implícito.
+      // Mantemos somente parts para evitar incompatibilidades.
       systemInstruction: {
-        role: "system",
         parts: [{ text: `
           Você é o 'Conselheiro da Família', um conselheiro matrimonial cristão, sábio, paciente e amoroso.
           
@@ -42,12 +44,20 @@ export const sendMessageToGemini = async (
           1. Use a Bíblia como base principal.
           2. Integre os princípios da Apostila.
           3. Seja empático e prático.
-        `}]
-      }
+        ` }]
+      },
     });
 
+    // O App cria uma mensagem inicial de boas-vindas com role MODEL ("Olá, ... Sou o Conselheiro...").
+    // O Gemini NÃO aceita histórico começando com role "model".
+    // Então removemos mensagens iniciais não-user antes de enviar.
+    const normalized = [...history];
+    while (normalized.length > 0 && normalized[0].role !== Role.USER) {
+      normalized.shift();
+    }
+
     // Converte histórico para o formato do Google
-    const chatHistory = history.map((msg) => ({
+    const chatHistory = normalized.map((msg) => ({
       role: msg.role === Role.USER ? "user" : "model",
       parts: [{ text: msg.text }],
     }));

@@ -9,7 +9,7 @@ const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
 const genAI = new GoogleGenerativeAI(apiKey);
 
 // Modelo Flash (Rápido e Eficiente)
-const MODEL_NAME = "gemini-1.5-flash";
+const MODEL_NAME = "gemini-2.5-flash";
 
 export const sendMessageToGemini = async (
   history: Message[],

@@ -54,14 +54,21 @@ const App: React.FC = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
   }, [sessions]);
 
-  // Auto-create session if none exists
+  // Keep a valid session selected for the active user.
+  // Fix: when switching between Marcelo/Fernanda, the previous user's sessionId
+  // could remain selected, causing messages to not append/show.
   useEffect(() => {
-    if (!currentSessionId && sessions[currentUser].length > 0) {
-      setCurrentSessionId(sessions[currentUser][0].id);
-    } else if (sessions[currentUser].length === 0) {
-      createNewSession();
+    const userSessions = sessions[currentUser] || [];
+    const hasValidSelection = !!currentSessionId && userSessions.some(s => s.id === currentSessionId);
+
+    if (!hasValidSelection) {
+      if (userSessions.length > 0) {
+        setCurrentSessionId(userSessions[0].id);
+      } else {
+        createNewSession();
+      }
     }
-  }, [currentUser]);
+  }, [currentUser, sessions]);
 
   // Scroll to bottom
   useEffect(() => {
@@ -203,7 +210,10 @@ const App: React.FC = () => {
 
           <div className="flex bg-slate-100 p-1 rounded-xl">
             <button
-              onClick={() => setCurrentUser(UserProfile.MARCELO)}
+              onClick={() => {
+                setCurrentSessionId(null);
+                setCurrentUser(UserProfile.MARCELO);
+              }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
                 currentUser === UserProfile.MARCELO 
                   ? 'bg-white text-blue-600 shadow-sm' 
@@ -213,7 +223,10 @@ const App: React.FC = () => {
               <Users size={16} /> Marcelo
             </button>
             <button
-              onClick={() => setCurrentUser(UserProfile.FERNANDA)}
+              onClick={() => {
+                setCurrentSessionId(null);
+                setCurrentUser(UserProfile.FERNANDA);
+              }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-all ${
                 currentUser === UserProfile.FERNANDA 
                   ? 'bg-white text-pink-500 shadow-sm' 

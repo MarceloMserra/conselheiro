@@ -26,7 +26,7 @@ export interface ChatSession {
   id: string;
   title: string;
   messages: Message[];
-  lastModified: number; // timestamp
+  lastModified: number;
 }
 
 export interface ChatState {

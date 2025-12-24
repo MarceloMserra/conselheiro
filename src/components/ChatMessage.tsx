@@ -30,7 +30,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
           `}
         >
           {isUser ? (
-            <p>{message.text}</p>
+            <p className="whitespace-pre-wrap">{message.text}</p>
           ) : (
             <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:text-emerald-800 prose-headings:font-serif prose-a:text-blue-600">
                <ReactMarkdown>{message.text}</ReactMarkdown>
